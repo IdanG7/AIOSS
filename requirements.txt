@@ -1,0 +1,25 @@
+# requirements.txt
+
+# --- Core Security Libraries ---
+python-nmap      # Python wrapper around nmap for port scanning
+scapy            # Packet manipulation & network traffic analysis
+pycryptodome     # Encryption and decryption (AES, etc.)
+requests         # HTTP requests for API calls, web interactions
+zxcvbn           # Password strength checking
+pyotp            # Generate/validate TOTP codes for 2FA
+
+# --- Machine Learning ---
+scikit-learn     # Basic ML capabilities (e.g., phishing detection)
+
+# --- Web Interface (Optional) ---
+flask            # Lightweight Python web framework
+
+# --- Web Scraping / Dark Web Monitoring (Optional) ---
+beautifulsoup4   # HTML parsing
+lxml             # Parser backend for BeautifulSoup (recommended for performance)
+
+# --- Log Analysis / Data Handling (Optional) ---
+pandas           # Data analysis (helpful for parsing logs, CSVs, etc.)
+
+# --- Testing ---
+pytest           # Test framework

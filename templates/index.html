@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Analyzer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f4f4f9;
+      }
+
+      .container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+
+      h1 {
+        margin: 0 0 20px;
+        text-align: center;
+      }
+
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      .results {
+        margin-top: 20px;
+      }
+
+      .bar-container {
+        margin-top: 10px;
+        width: 100%;
+        background: #f4f4f9;
+        border-radius: 5px;
+        overflow: hidden;
+        height: 25px;
+        border: 1px solid #ddd;
+      }
+
+      .bar {
+        height: 100%;
+        transition: width 0.5s ease;
+      }
+
+      .bar.weak {
+        background: #ff4c4c;
+      }
+
+      .bar.medium {
+        background: #ffc107;
+      }
+
+      .bar.strong {
+        background: #4caf50;
+      }
+
+      .suggestion {
+        margin-bottom: 5px;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .strength-label {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 5px;
+      }
+
+      .strength-label.weak {
+        color: #ff4c4c;
+      }
+
+      .strength-label.medium {
+        color: #ffc107;
+      }
+
+      .strength-label.strong {
+        color: #4caf50;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Password Analyzer</h1>
+      <form id="password-form">
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter your password"
+          required
+        />
+        <button type="submit">Analyze</button>
+      </form>
+      <div class="results" id="results"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("password-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const password = document.getElementById("password").value;
+          const resultsDiv = document.getElementById("results");
+
+          // Clear the results and show a loading animation
+          resultsDiv.innerHTML = "<p>Analyzing...</p>";
+
+          // Send the password to the server
+          const response = await fetch("/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `password=${encodeURIComponent(password)}`,
+          });
+
+          const result = await response.json();
+
+          // Handle errors
+          if (result.error) {
+            resultsDiv.innerHTML = `<p style="color: red;">Error: ${result.error}</p>`;
+            return;
+          }
+
+          // Clear results and display feedback
+          resultsDiv.innerHTML = "";
+
+          // Determine strength level based on ML classification (not just suggestions)
+          let strengthLevel;
+          if (result.classification === "weak") {
+            strengthLevel = "weak";
+          } else if (result.classification === "medium") {
+            strengthLevel = "medium";
+          } else {
+            strengthLevel = "strong";
+          }
+
+          // Add strength bar
+          const barContainer = document.createElement("div");
+          barContainer.classList.add("bar-container");
+
+          const bar = document.createElement("div");
+          bar.classList.add("bar", strengthLevel);
+
+          if (strengthLevel === "weak") {
+            bar.style.width = "33%";
+          } else if (strengthLevel === "medium") {
+            bar.style.width = "66%";
+          } else {
+            bar.style.width = "100%";
+          }
+
+          barContainer.appendChild(bar);
+          resultsDiv.appendChild(barContainer);
+
+          // Add strength label
+          const strengthLabel = document.createElement("div");
+          strengthLabel.classList.add("strength-label", strengthLevel);
+          strengthLabel.textContent =
+            strengthLevel === "strong"
+              ? "Strong Password"
+              : strengthLevel === "medium"
+              ? "Moderate Password"
+              : "Weak Password";
+          resultsDiv.appendChild(strengthLabel);
+
+          // Add ML classification message
+          const classificationMessage = document.createElement("p");
+          classificationMessage.textContent = `This password is classified as ${result.classification} by the ML model.`;
+          resultsDiv.appendChild(classificationMessage);
+
+          // Add suggestions if available
+          if (result.suggestions.length > 0) {
+            result.suggestions.forEach((suggestion) => {
+              const p = document.createElement("p");
+              p.classList.add("suggestion");
+              p.textContent = suggestion;
+              resultsDiv.appendChild(p);
+            });
+          }
+        });
+    </script>
+  </body>
+</html>

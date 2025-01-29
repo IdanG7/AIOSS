@@ -1,0 +1,26 @@
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Virtual Environments
+venv/
+env/
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore model files (optional, unless you want to share the trained model)
+models/password_strength_model.pkl
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore large dataset files (Optional)
+data/*.csv
+data/*.txt
+
+# Ignore log files
+*.log
